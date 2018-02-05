@@ -57,25 +57,29 @@ public class Player_Controller : MonoBehaviour
 		moveVelocity = speedX * Input.GetAxisRaw ("Horizontal");
 
 		// Flip the sprite to where he's facing accordingly.
-		if (moveVelocity > 0)
+		if (moveVelocity > 0) 
+		{
 			spriteRenderer.flipX = false;
-		else if(moveVelocity < 0)
+			facingRight = true;
+		}
+		else if (moveVelocity < 0)
+		{
 			spriteRenderer.flipX = true;
+			facingRight = false;
+		}
 
 		GetComponent<Rigidbody2D> ().velocity = new Vector2 (moveVelocity, rigidBody.velocity.y);
 
 
 		// BASIC JUMP (extensive jump in PlayerJump.cs)
-		if (jumps > 0 && Input.GetButton ("Jump2"))
-		{
+		if (jumps > 0 && Input.GetKeyDown (KeyCode.JoystickButton0)) {
 			rigidBody.velocity = Vector2.up * jumpVelocity;
 			jumps--;
 		}
 			
 
 		// DASH (Left Shift)
-		if (Input.GetKeyDown (KeyCode.LeftShift) && canDash)
-		{
+		if ((Input.GetKeyDown (KeyCode.JoystickButton4) || Input.GetKeyDown(KeyCode.JoystickButton5)) && canDash) {
 			StartCoroutine (Dash (dashLength)); // Call coroutine to dash with dash duration parameter
 
 		}
@@ -87,20 +91,17 @@ public class Player_Controller : MonoBehaviour
 		float time = 0f;
 		canDash = false;
 
-		while (dashDuration > time) //while theres still time left in the dash according to the dashLength
-		{
+		while (dashDuration > time) { //while theres still time left in the dash according to the dashLength
 			time += Time.deltaTime;
-			if (facingRight)
-			{
+			if (facingRight) {
 				if (!onGround)
 					rigidBody.velocity = dashSpeedRightAIR; // Dash Right in air with Y velocity
 				else
 					rigidBody.velocity = dashSpeedRight; // Dash Right - no Y vel
 
-			} else if (!facingRight) // Same goes for left; 
-			{
+			} else if (!facingRight) { // Same goes for left; 
 				if (!onGround)
-					rigidBody.velocity = dashSpeedLeftAIR; 
+					rigidBody.velocity = dashSpeedLeftAIR;
 				else
 					rigidBody.velocity = dashSpeedLeft; 
 			}
@@ -117,8 +118,7 @@ public class Player_Controller : MonoBehaviour
 	{
 		// Touching the Ground resets double jump, and refreshes the dash
 		//										   ** DOES NOT RESET DASH
-		if (collisionInfo.gameObject.tag == "Ground")
-		{
+		if (collisionInfo.gameObject.tag == "Ground") {
 			jumps = numJumps;
 			onGround = true;
 		}
