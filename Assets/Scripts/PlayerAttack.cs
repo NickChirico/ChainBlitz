@@ -9,6 +9,7 @@ public class PlayerAttack : MonoBehaviour
 
 	public float attackTimer = 0f;
 	public float attackCD = 0.3f;
+	public float chainWindow = 2f;
 
 	public Collider2D attackTrigger;
 
