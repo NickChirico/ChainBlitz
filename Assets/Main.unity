@@ -251,7 +251,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &369256449
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -800,10 +800,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2297b69d616ca42fc97a8ffea3dec22f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  rigidBody: {fileID: 0}
   speedX: 6.5
   moveVelocity: 0
   jumpVelocity: 9.75
   numJumps: 2
+  facingRight: 0
+  onGround: 0
   dashSpeedRight: {x: 14, y: 0}
   dashSpeedLeft: {x: -14, y: 0}
   dashSpeedRightAIR: {x: 14, y: 3}
@@ -822,10 +825,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 668c69f2124964c44846998bc6acd921, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  attackTimer: 0
-  attackCD: 0.3
-  chainWindow: 2
+  chainWindow: 0.4
+  attackMovementDistance: 0.15
   attackTrigger: {fileID: 1502004500}
+  attackMoveDistance: {x: 2, y: 0}
 --- !u!95 &655278154
 Animator:
   serializedVersion: 3
@@ -1351,7 +1354,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!61 &1233182871
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -1798,7 +1801,7 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: -0.12567261, y: -0.004758239}
+  m_Offset: {x: -0.012871027, y: -0.004758239}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -1809,7 +1812,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 1.2885816, y: 1.2887883}
+  m_Size: {x: 1.0629785, y: 1.2887883}
   m_EdgeRadius: 0
 --- !u!1 &1559807823
 GameObject:
@@ -1843,8 +1846,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -309, y: 154}
-  m_SizeDelta: {x: 160, y: 30}
+  m_AnchoredPosition: {x: -286.3, y: 156.3}
+  m_SizeDelta: {x: 205.3, y: 25.5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1559807825
 MonoBehaviour:
@@ -1875,8 +1878,8 @@ MonoBehaviour:
     m_Alignment: 0
     m_AlignByGeometry: 0
     m_RichText: 1
-    m_HorizontalOverflow: 0
-    m_VerticalOverflow: 0
+    m_HorizontalOverflow: 1
+    m_VerticalOverflow: 1
     m_LineSpacing: 1
   m_Text: New Text
 --- !u!222 &1559807826

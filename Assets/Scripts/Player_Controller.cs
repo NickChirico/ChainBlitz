@@ -4,9 +4,8 @@ using UnityEngine;
 
 public class Player_Controller : MonoBehaviour
 {
-
 	SpriteRenderer spriteRenderer;
-	Rigidbody2D rigidBody;
+	public Rigidbody2D rigidBody;
 
 	public float speedX = 5f;
 	public float moveVelocity;
@@ -14,8 +13,8 @@ public class Player_Controller : MonoBehaviour
 	public int numJumps = 2;
 	private int jumps;
 	//Value for double jumping
-	private bool facingRight;
-	private bool onGround;
+	public bool facingRight = true;
+	public bool onGround;
 
 	private bool canDash = true;
 	//Check for dashing
@@ -86,6 +85,9 @@ public class Player_Controller : MonoBehaviour
 	}
 
 
+
+	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 	IEnumerator Dash (float dashDuration) // Dash Coroutine -> dashLength parameter
 	{
 		float time = 0f;
@@ -111,7 +113,6 @@ public class Player_Controller : MonoBehaviour
 		yield return new WaitForSeconds (dashCD); //Cooldown time for being able to boost again, if you'd like.
 		canDash = true; //set back to true so that we can boost again.
 	}
-
 
 
 	void OnCollisionEnter2D (Collision2D collisionInfo)
