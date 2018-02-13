@@ -93,15 +93,17 @@ public class Player_Controller : MonoBehaviour
 		float time = 0f;
 		canDash = false;
 
+		bool facingRightDash = facingRight; // cannot change direction while dashing
+
 		while (dashDuration > time) { //while theres still time left in the dash according to the dashLength
 			time += Time.deltaTime;
-			if (facingRight) {
+			if (facingRightDash) {
 				if (!onGround)
 					rigidBody.velocity = dashSpeedRightAIR; // Dash Right in air with Y velocity
 				else
 					rigidBody.velocity = dashSpeedRight; // Dash Right - no Y vel
 
-			} else if (!facingRight) { // Same goes for left; 
+			} else if (!facingRightDash) { // Same goes for left; 
 				if (!onGround)
 					rigidBody.velocity = dashSpeedLeftAIR;
 				else
@@ -110,7 +112,7 @@ public class Player_Controller : MonoBehaviour
 			yield return 0; //go to next frame
 		}
 		Time.timeScale = 1;
-		yield return new WaitForSeconds (dashCD); //Cooldown time for being able to boost again, if you'd like.
+		yield return new WaitForSeconds (dashCD); //Cooldown time for being able to boost again
 		canDash = true; //set back to true so that we can boost again.
 	}
 

@@ -13,19 +13,28 @@ public class PlayerAttack : MonoBehaviour
 	private int attackSequence = 0;
 	// Which part of the 3 hit combo are you on - 0 is idle
 	public float chainWindow = 1f;
-	// Seconds
 	public float attackMovementDistance = 0.225f;
 
+	public float attackDurationUpswing = 1f;
+	public float upswingCD = 0.5f;
+	private bool canUpswing = true;
+
 	public Collider2D attackTrigger;
+	public Collider2D attackTriggerUpswing;
+
 
 	private Animator anim;
 
 	public Vector2 attackMoveDistance = new Vector2 (4, 0);
+	public Vector2 attackUpswingDistanceRIGHT = new Vector2 (6, 12);
+	public Vector2 attackUpswingDistanceLEFT = new Vector2 (-6, 12);
+
 
 	void Start ()
 	{
 		anim = gameObject.GetComponent<Animator> ();
 		attackTrigger.enabled = false;
+		attackTriggerUpswing.enabled = false;
 	}
 
 	void Update ()
@@ -33,7 +42,7 @@ public class PlayerAttack : MonoBehaviour
 		// First attack - X button 1st time pressed
 		if (Input.GetKeyDown (KeyCode.JoystickButton2) && attackCounter < 3) //&& !attacking)
 		{
-			StartCoroutine (AttackMovement (attackMovementDistance));
+			StartCoroutine (AttackMovementX (attackMovementDistance));
 
 			attackCounter++;
 			if (attackCounter > 3)
@@ -58,17 +67,25 @@ public class PlayerAttack : MonoBehaviour
 			}
 		}
 
-			
+		// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+		if (Input.GetKeyDown (KeyCode.JoystickButton3) && canUpswing)
+		{
+			anim.SetInteger ("AttackState", 4); // set animation to upswing
+			attackTriggerUpswing.enabled = true;
+			StartCoroutine (AttackMovementY (attackDurationUpswing));
+		}
 	}
 
 
-	IEnumerator AttackMovement (float attackDuration) // Attack Movement Coroutine
+	IEnumerator AttackMovementX (float attackDuration) // Attack Movement Coroutine
 	{
 		float time = 0f;
-		//canDash = false;
+		Time.timeScale = 1;
+
 
 		while (attackDuration > time)
-		{ //while theres still time left in the dash according to the dashLength
+		{ //while theres still time left in the attack according to the attackDuration
 			time += Time.deltaTime;
 			if (GetComponent<Player_Controller> ().facingRight)
 			{
@@ -81,8 +98,37 @@ public class PlayerAttack : MonoBehaviour
 			}
 			yield return 0; //go to next frame
 		}
+
+	}
+
+	IEnumerator AttackMovementY (float attackDuration) // Attack Movement Coroutine
+	{
+		float time = 0f;
 		Time.timeScale = 1;
-		//yield return new WaitForSeconds (dashCD); //Cooldown time for being able to boost again, if you'd like.
-		//canDash = true; //set back to true so that we can boost again.
+		canUpswing = false;
+
+		bool facingRightUpswing = GetComponent<Player_Controller> ().facingRight;
+			
+		while (attackDuration > time)
+		{//while theres still time left in the upswing animation
+			time += Time.deltaTime;
+			if (facingRightUpswing)
+			{
+				GetComponent<Player_Controller> ().rigidBody.velocity = attackUpswingDistanceRIGHT;
+			}
+			else
+			if (!facingRightUpswing)
+			{ // Same goes for left; 
+				GetComponent<Player_Controller> ().rigidBody.velocity = attackUpswingDistanceLEFT;
+			}
+			yield return 0; // go to next frame
+		}
+		GetComponent<Player_Controller> ().rigidBody.velocity = new Vector2 (0, 8);
+		attackTriggerUpswing.enabled = false; // turn off hitbox
+		anim.SetInteger ("AttackState", 0); // back to idle
+
+		Time.timeScale = 1;
+		yield return new WaitForSeconds (upswingCD); //Cooldown time for being able to attack again
+		canUpswing = true; //set back to true so that we can boost again.
 	}
 }
