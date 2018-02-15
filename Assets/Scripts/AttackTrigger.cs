@@ -13,7 +13,7 @@ public class AttackTrigger : MonoBehaviour {
 			// WHAT HAPPENS WHEN YOU ATTACK AN ENEMY
 
 			// TO-DO
-			Debug.Log("Enemy has been hit!");
+			Debug.Log("Enemy has been hit! for " + damage + " damage");
 		}
 	}
 }
