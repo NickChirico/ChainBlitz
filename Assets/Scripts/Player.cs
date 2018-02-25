@@ -28,14 +28,6 @@ public class Player : MonoBehaviour
 	public float dashLength = 1f;
 
 
-	//public float accel = 1000;
-	//public float minSpeed = 3.5f;
-	//public float maxSpeed = 5f;
-	//public float duration = 0.1f;
-
-
-	private float startTime;
-
 	public GameObject floorObj;
 
 	void Start ()
@@ -43,8 +35,6 @@ public class Player : MonoBehaviour
 		spriteRenderer = GetComponent<SpriteRenderer> ();
 		rigidBody = GetComponent<Rigidbody2D> ();
 		jumps = numJumps;
-
-		startTime = Time.time;
 	}
 
 	void Update ()
