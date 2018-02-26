@@ -59,7 +59,7 @@ public class Player_Controller : MonoBehaviour
 
 	void Update ()
 	{ 
-		Debug.Log (health);
+		//Debug.Log (health);
 
 		// Movement with Xbox controller
 		// Left Stick is movement

@@ -80,9 +80,19 @@ public class PlayerAttack : MonoBehaviour
 
 	IEnumerator AttackMovementX (float attackDuration) // Attack Movement Coroutine
 	{
+		//Ignore collision while attacking
+		int enemyLayer = LayerMask.NameToLayer ("Enemy");
+		int playerLayer = LayerMask.NameToLayer ("Player");
+		Physics2D.IgnoreLayerCollision (enemyLayer, playerLayer, true);
+		foreach (Collider2D collider in Player_Controller.instance.colls)
+		{
+			collider.enabled = false;
+			collider.enabled = true;
+		}
+
+
 		float time = 0f;
 		Time.timeScale = 1;
-
 
 		while (attackDuration > time)
 		{ //while theres still time left in the attack according to the attackDuration
@@ -99,6 +109,8 @@ public class PlayerAttack : MonoBehaviour
 			yield return 0; //go to next frame
 		}
 
+
+		Physics2D.IgnoreLayerCollision (enemyLayer, playerLayer, false);
 	}
 
 	IEnumerator AttackMovementY (float attackDuration) // Attack Movement Coroutine

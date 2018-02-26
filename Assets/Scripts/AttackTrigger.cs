@@ -11,13 +11,12 @@ public class AttackTrigger : MonoBehaviour {
 
 
 
-	void OnTriggerEnter2D(Collider2D collider)
+	void OnTriggerEnter2D(Collider2D collision)
 	{
-		GameObject enemy;
-		if (collider.isTrigger == true && collider.CompareTag ("Enemy"))
+
+		if (collision.isTrigger != true && collision.CompareTag("ChargerEnemy"))
 		{
-			// WHAT HAPPENS WHEN YOU ATTACK AN ENEMY
-			//Destroy(
+			collision.SendMessageUpwards("Damage", damage1);
 
 			// TO-DO
 			Debug.Log("Enemy has been hit! for " + damage1 + " damage");
