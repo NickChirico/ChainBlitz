@@ -4,21 +4,25 @@ using UnityEngine;
 
 public class Player_Controller : MonoBehaviour
 {
+	public static Player_Controller instance;
 	SpriteRenderer spriteRenderer;
 	public Rigidbody2D rigidBody;
+	private Animator anim;
 
+	[HideInInspector]
+	public Collider2D[] colls;
+
+	// Movement variables
 	public float speedX = 5f;
 	public float moveVelocity;
 	public float jumpVelocity = 8f;
 	public int numJumps = 2;
 	private int jumps;
-	//Value for double jumping
+	// Value for double jumping
 	public bool facingRight = true;
 	public bool onGround;
-
 	private bool canDash = true;
-	//Check for dashing
-
+	// Dash Vectors
 	public Vector2 dashSpeedRight = new Vector2 (14, 0);
 	public Vector2 dashSpeedLeft = new Vector2 (-14, 0);
 	public Vector2 dashSpeedRightAIR = new Vector2 (14, 3);
@@ -28,17 +32,34 @@ public class Player_Controller : MonoBehaviour
 	public float dashLength = 1f;
 
 
-	public GameObject floorObj;
+	// Combat Variables
+	private bool isAlive = true;
+	public int health = 100;
+	public float invincibilityDuration = 2;
+
+	public Vector2 flinchKnockbackRight = new Vector2 (-5, 3);
+	public Vector2 flinchKnockbackLeft = new Vector2 (5, 3);
+
+	public float flinchLength = 1f;
+
+
+
+
 
 	void Start ()
 	{
+		instance = this;
 		spriteRenderer = GetComponent<SpriteRenderer> ();
 		rigidBody = GetComponent<Rigidbody2D> ();
+		anim = gameObject.GetComponent<Animator> ();
+		colls = this.GetComponents<Collider2D> ();
+
 		jumps = numJumps;
 	}
 
 	void Update ()
 	{ 
+		Debug.Log (health);
 
 		// Movement with Xbox controller
 		// Left Stick is movement
@@ -46,29 +67,31 @@ public class Player_Controller : MonoBehaviour
 		moveVelocity = speedX * Input.GetAxisRaw ("Horizontal");
 
 		// Flip the sprite to where he's facing accordingly.
-		if (moveVelocity > 0) 
+		if (moveVelocity > 0)
 		{
-			spriteRenderer.flipX = false;
+			transform.localScale = new Vector3 (3, 2.05f, 3);
 			facingRight = true;
 		}
-		else if (moveVelocity < 0)
+		else
+		if (moveVelocity < 0)
 		{
-			spriteRenderer.flipX = true;
+			transform.localScale = new Vector3 (-3, 2.05f, 3);
 			facingRight = false;
 		}
 
-		GetComponent<Rigidbody2D> ().velocity = new Vector2 (moveVelocity, rigidBody.velocity.y);
+		rigidBody.velocity = new Vector2 (moveVelocity, rigidBody.velocity.y);
 
 
-		// BASIC JUMP (extensive jump in PlayerJump.cs)
-		if (jumps > 0 && Input.GetKeyDown (KeyCode.JoystickButton0)) {
+		// BASIC JUMP (extensive jump details in PlayerJump.cs)
+		if (jumps > 0 && Input.GetKeyDown (KeyCode.JoystickButton0))
+		{
 			rigidBody.velocity = Vector2.up * jumpVelocity;
 			jumps--;
 		}
 			
-
 		// DASH (Left Shift)
-		if ((Input.GetKeyDown (KeyCode.JoystickButton4) || Input.GetKeyDown(KeyCode.JoystickButton5)) && canDash) {
+		if ((Input.GetKeyDown (KeyCode.JoystickButton4) || Input.GetKeyDown (KeyCode.JoystickButton5)) && canDash)
+		{
 			StartCoroutine (Dash (dashLength)); // Call coroutine to dash with dash duration parameter
 
 		}
@@ -85,15 +108,20 @@ public class Player_Controller : MonoBehaviour
 
 		bool facingRightDash = facingRight; // cannot change direction while dashing
 
-		while (dashDuration > time) { //while theres still time left in the dash according to the dashLength
+		while (dashDuration > time)
+		{ //while theres still time left in the dash according to the dashLength
 			time += Time.deltaTime;
-			if (facingRightDash) {
+			if (facingRightDash)
+			{
 				if (!onGround)
 					rigidBody.velocity = dashSpeedRightAIR; // Dash Right in air with Y velocity
 				else
 					rigidBody.velocity = dashSpeedRight; // Dash Right - no Y vel
 
-			} else if (!facingRightDash) { // Same goes for left; 
+			}
+			else
+			if (!facingRightDash)
+			{ // Same goes for left; 
 				if (!onGround)
 					rigidBody.velocity = dashSpeedLeftAIR;
 				else
@@ -106,19 +134,82 @@ public class Player_Controller : MonoBehaviour
 		canDash = true; //set back to true so that we can boost again.
 	}
 
+	IEnumerator DamageBlink (float flinchDuration)
+	{
+
+
+		//temporarily ignore collision with enemies
+		int enemyLayer = LayerMask.NameToLayer ("Enemy");
+		int playerLayer = LayerMask.NameToLayer ("Player");
+		Physics2D.IgnoreLayerCollision (enemyLayer, playerLayer, true);
+		foreach (Collider2D collider in colls)
+		{
+			collider.enabled = false;
+			collider.enabled = true;
+		}
+
+		//Start blinking animation
+		anim.SetLayerWeight (1, 1);
+
+		//flinch
+		float time = 0f;
+		bool facingRightFlinch = facingRight;
+
+		while (flinchDuration > time)
+		{
+			anim.SetInteger ("AnimState", 1);
+			time += Time.deltaTime;
+			if (facingRightFlinch)
+				rigidBody.velocity = flinchKnockbackRight;
+			else if(!facingRightFlinch)
+				rigidBody.velocity = flinchKnockbackLeft;
+
+			yield return 0;			
+		}
+		anim.SetInteger ("AnimState", 0);
+
+		//wait for invincibility to end
+		yield return new WaitForSeconds (invincibilityDuration);
+
+		//stop blinking animation and resume enemy collisions
+		Physics2D.IgnoreLayerCollision (enemyLayer, playerLayer, false);
+		anim.SetLayerWeight (1, 0);
+
+	}
+
+	void TakeDamage (int damage)
+	{
+		health -= damage;
+		if (health <= 0)
+		{
+			isAlive = false;
+			//DIE DEATH DEAD function
+		}
+		else
+		{
+			StartCoroutine (DamageBlink (flinchLength));
+		}
+	}
 
 	void OnCollisionEnter2D (Collision2D collisionInfo)
 	{
 		// Touching the Ground resets double jump, and refreshes the dash
 		//										   ** DOES NOT RESET DASH
-		if (collisionInfo.gameObject.tag == "Ground") {
+		if (collisionInfo.gameObject.tag == "Ground")
+		{
 			jumps = numJumps;
 			onGround = true;
 		}
+
+		if (collisionInfo.gameObject.tag == "ChargerEnemy")
+		{
+			TakeDamage (15);
+		}
+
 	}
 
 	void OnCollisionExit2D (Collision2D collisionInfo)
 	{
-		onGround = false;
+		//onGround = false;
 	}
 }

@@ -9,6 +9,8 @@ TagManager:
   - Enemy
   - test
   - cameraEdge
+  - Edge
+  - ChargerEnemy
   layers:
   - Default
   - TransparentFX
@@ -19,8 +21,8 @@ TagManager:
   - 
   - 
   - Obstacle
-  - 
-  - 
+  - Enemy
+  - Player
   - 
   - 
   - 

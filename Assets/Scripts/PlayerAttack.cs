@@ -89,7 +89,7 @@ public class PlayerAttack : MonoBehaviour
 			time += Time.deltaTime;
 			if (GetComponent<Player_Controller> ().facingRight)
 			{
-				GetComponent<Player_Controller> ().rigidBody.velocity = attackMoveDistance; // Dash Right - no Y vel
+				GetComponent<Player_Controller> ().rigidBody.velocity = attackMoveDistance; // Briefly Dash Right - no Y vel
 			}
 			else
 			if (!GetComponent<Player_Controller> ().facingRight)
