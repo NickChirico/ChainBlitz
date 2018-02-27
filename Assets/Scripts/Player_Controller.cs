@@ -20,6 +20,7 @@ public class Player_Controller : MonoBehaviour
 	private int jumps;
 	// Value for double jumping
 	public bool facingRight = true;
+	[HideInInspector]
 	public bool onGround;
 	private bool canDash = true;
 	// Dash Vectors
@@ -58,8 +59,7 @@ public class Player_Controller : MonoBehaviour
 	}
 
 	void Update ()
-	{ 
-		//Debug.Log (health);
+	{
 
 		// Movement with Xbox controller
 		// Left Stick is movement
@@ -113,19 +113,19 @@ public class Player_Controller : MonoBehaviour
 			time += Time.deltaTime;
 			if (facingRightDash)
 			{
-				if (!onGround)
-					rigidBody.velocity = dashSpeedRightAIR; // Dash Right in air with Y velocity
+				if (onGround)
+					rigidBody.velocity = dashSpeedRight; // Dash Right in air with Y velocity
 				else
-					rigidBody.velocity = dashSpeedRight; // Dash Right - no Y vel
+					rigidBody.velocity = dashSpeedRightAIR; // Dash Right - no Y vel
 
 			}
 			else
 			if (!facingRightDash)
 			{ // Same goes for left; 
-				if (!onGround)
-					rigidBody.velocity = dashSpeedLeftAIR;
+				if (onGround)
+					rigidBody.velocity = dashSpeedLeft;
 				else
-					rigidBody.velocity = dashSpeedLeft; 
+					rigidBody.velocity = dashSpeedLeftAIR; 
 			}
 			yield return 0; //go to next frame
 		}
@@ -136,12 +136,14 @@ public class Player_Controller : MonoBehaviour
 
 	IEnumerator DamageBlink (float flinchDuration)
 	{
-
-
 		//temporarily ignore collision with enemies
 		int enemyLayer = LayerMask.NameToLayer ("Enemy");
+		int flyingEnemyLayer = LayerMask.NameToLayer ("FlyingEnemy");
+		int projectileLayer = LayerMask.NameToLayer ("Projectile");
 		int playerLayer = LayerMask.NameToLayer ("Player");
 		Physics2D.IgnoreLayerCollision (enemyLayer, playerLayer, true);
+		Physics2D.IgnoreLayerCollision (flyingEnemyLayer, playerLayer, true);
+		Physics2D.IgnoreLayerCollision (projectileLayer, playerLayer, true);
 		foreach (Collider2D collider in colls)
 		{
 			collider.enabled = false;
@@ -173,6 +175,8 @@ public class Player_Controller : MonoBehaviour
 
 		//stop blinking animation and resume enemy collisions
 		Physics2D.IgnoreLayerCollision (enemyLayer, playerLayer, false);
+		Physics2D.IgnoreLayerCollision (flyingEnemyLayer, playerLayer, false);
+		Physics2D.IgnoreLayerCollision (projectileLayer, playerLayer, false);
 		anim.SetLayerWeight (1, 0);
 
 	}
@@ -184,6 +188,7 @@ public class Player_Controller : MonoBehaviour
 		{
 			isAlive = false;
 			//DIE DEATH DEAD function
+			spriteRenderer.color = Color.red;
 		}
 		else
 		{
@@ -199,6 +204,14 @@ public class Player_Controller : MonoBehaviour
 		{
 			jumps = numJumps;
 			onGround = true;
+			if (anim.GetInteger ("AttackState") == 5)
+				anim.SetInteger ("AttackState", 0);
+		}
+
+		if (collisionInfo.gameObject.tag == "FlyingEnemy")
+		{
+			//TakeDamage (15); Dont take damage. Instead, refresh double jump. Lets try it.
+			jumps = numJumps;
 		}
 
 		if (collisionInfo.gameObject.tag == "ChargerEnemy")
@@ -206,10 +219,18 @@ public class Player_Controller : MonoBehaviour
 			TakeDamage (15);
 		}
 
+		if (collisionInfo.gameObject.tag == "Projectile")
+		{
+			TakeDamage (6);
+		}
+
 	}
 
 	void OnCollisionExit2D (Collision2D collisionInfo)
 	{
-		//onGround = false;
+		if (collisionInfo.gameObject.tag == "Ground")
+		{
+			onGround = false;
+		}
 	}
 }

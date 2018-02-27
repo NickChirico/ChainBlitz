@@ -6,11 +6,12 @@ using UnityEngine;
 [RequireComponent (typeof(Seeker))]
 
 
-public class enemy1AI : MonoBehaviour
+public class EnemyFlying: MonoBehaviour
 {
 
 	public GameObject DesignatedArea;
-	public Transform target;
+	public Vector3 target;
+	public Player_Controller player;
 	public float updateRate = 2f;
 	//updates x times per second.
 	private Seeker seeker;
@@ -34,10 +35,14 @@ public class enemy1AI : MonoBehaviour
 	// waypoint currently moving towards
 
 
+	public int health = 40;
+
+
 	void Start ()
 	{
 		seeker = GetComponent<Seeker> ();
 		rb = GetComponent<Rigidbody2D> ();
+		player = FindObjectOfType<Player_Controller> ();
 
 		if (target == null)
 		{
@@ -45,22 +50,33 @@ public class enemy1AI : MonoBehaviour
 			return;
 		}
 
-		seeker.StartPath (transform.position, target.position, OnPathComplete);
+		seeker.StartPath (transform.position, target, OnPathComplete);
 
 		StartCoroutine (UpdatePath ());
 
 	}
 
+	void Update()
+	{
+		if (health <= 0)
+		{
+			Destroy (this.gameObject);
+		}
+	}
+
+	public void Damage (int damage)
+	{
+		health -= damage;
+		//StartCoroutine (Flinch (flinchLength));
+	}
+
+
 	IEnumerator UpdatePath ()
 	{
-		//if there is no target;
-		if (target == null)
-		{
-			//TODO: Player search? if need be
-			yield break;
-		}
+		target = new Vector3(player.transform.position.x, player.transform.position.y+5, player.transform.position.z);
 
-		seeker.StartPath (transform.position, target.position, OnPathComplete);	
+
+		seeker.StartPath (transform.position, target, OnPathComplete);	
 
 		yield return new WaitForSeconds (1f / updateRate);
 		StartCoroutine (UpdatePath ()); // call itself again every 'x' seconds

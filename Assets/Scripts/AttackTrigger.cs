@@ -4,22 +4,25 @@ using UnityEngine;
 
 public class AttackTrigger : MonoBehaviour {
 
-	public int damage1 = 20;
-	public int damage2 = 25;
-	public int damage3 = 35;
-	public int damageUpswing = 30;
-
-
+	public int damage = 20;
 
 	void OnTriggerEnter2D(Collider2D collision)
 	{
 
 		if (collision.isTrigger != true && collision.CompareTag("ChargerEnemy"))
 		{
-			collision.SendMessageUpwards("Damage", damage1);
+			collision.SendMessageUpwards("Damage", damage);
 
 			// TO-DO
-			Debug.Log("Enemy has been hit! for " + damage1 + " damage");
+			Debug.Log("Charger Enemy has been hit! for " + damage + " damage");
+		}
+
+		if (collision.isTrigger != true && collision.CompareTag("FlyingEnemy"))
+		{
+			collision.SendMessageUpwards("Damage", damage);
+
+			// TO-DO
+			Debug.Log("Flying Enemy has been hit! for " + damage + " damage");
 		}
 	}
 }

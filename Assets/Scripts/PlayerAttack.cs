@@ -19,8 +19,16 @@ public class PlayerAttack : MonoBehaviour
 	public float upswingCD = 0.5f;
 	private bool canUpswing = true;
 
-	public Collider2D attackTrigger;
+	public float attackDurationSmash = 1f;
+	public float smashWindup = 1f;
+	public float smashCD = 1f;
+	private bool canSmash = false;
+
+	public Collider2D attackTrigger1;
+	public Collider2D attackTrigger2;
+	public Collider2D attackTrigger3;
 	public Collider2D attackTriggerUpswing;
+	public Collider2D attackTriggerSmash;
 
 
 	private Animator anim;
@@ -28,17 +36,27 @@ public class PlayerAttack : MonoBehaviour
 	public Vector2 attackMoveDistance = new Vector2 (4, 0);
 	public Vector2 attackUpswingDistanceRIGHT = new Vector2 (6, 12);
 	public Vector2 attackUpswingDistanceLEFT = new Vector2 (-6, 12);
+	public Vector2 attackSmashDistanceRIGHT = new Vector2 (4, -10);
+	public Vector2 attackSmashDistanceLEFT = new Vector2 (-4, -10);
+
+
 
 
 	void Start ()
-	{
+	{		
 		anim = gameObject.GetComponent<Animator> ();
-		attackTrigger.enabled = false;
+		attackTrigger1.enabled = false;
+		attackTrigger2.enabled = false;
+		attackTrigger3.enabled = false;
 		attackTriggerUpswing.enabled = false;
+		attackTriggerSmash.enabled = false;
 	}
 
 	void Update ()
 	{
+		// Checking for which attack hitboxes should be active
+		CheckHitboxes ();
+
 		// First attack - X button 1st time pressed
 		if (Input.GetKeyDown (KeyCode.JoystickButton2) && attackCounter < 3) //&& !attacking)
 		{
@@ -53,7 +71,7 @@ public class PlayerAttack : MonoBehaviour
 			//attackTimer = attackCD;
 
 			anim.SetInteger ("AttackState", attackCounter);
-			attackTrigger.enabled = true;
+			//attackTrigger1.enabled = true;
 		}
 
 		if (attackCounter > 0)
@@ -62,7 +80,6 @@ public class PlayerAttack : MonoBehaviour
 			if (attackTimer > chainWindow)
 			{
 				anim.SetInteger ("AttackState", 0); // Back to Idle if you wait too long
-				attackTrigger.enabled = false;
 				attackCounter = 0;
 			}
 		}
@@ -72,9 +89,42 @@ public class PlayerAttack : MonoBehaviour
 		if (Input.GetKeyDown (KeyCode.JoystickButton3) && canUpswing)
 		{
 			anim.SetInteger ("AttackState", 4); // set animation to upswing
-			attackTriggerUpswing.enabled = true;
 			StartCoroutine (AttackMovementY (attackDurationUpswing));
 		}
+
+		if (Input.GetKeyDown (KeyCode.JoystickButton1) && canSmash)
+		{
+			anim.SetInteger ("AttackState", 6); // set animation to Smash WINDUP
+			StartCoroutine (AttackMovementB (attackDurationSmash));
+		}
+	}
+
+	void CheckHitboxes ()
+	{
+		if (anim.GetInteger ("AttackState") == 1)
+			attackTrigger1.enabled = true;
+		if (anim.GetInteger ("AttackState") == 2)
+			attackTrigger2.enabled = true;
+		if (anim.GetInteger ("AttackState") == 3)
+			attackTrigger3.enabled = true;
+		if (anim.GetInteger ("AttackState") == 4)
+			attackTriggerUpswing.enabled = true;
+		if (anim.GetInteger ("AttackState") == 5)
+			attackTriggerSmash.enabled = true;
+
+		if (anim.GetInteger ("AttackState") != 1)
+			attackTrigger1.enabled = false;
+		if (anim.GetInteger ("AttackState") != 2)
+			attackTrigger2.enabled = false;
+		if (anim.GetInteger ("AttackState") != 3)
+			attackTrigger3.enabled = false;
+		if (anim.GetInteger ("AttackState") != 4)
+			attackTriggerUpswing.enabled = false;
+		if (anim.GetInteger ("AttackState") != 5)
+			attackTriggerSmash.enabled = false;
+
+		canSmash = !Player_Controller.instance.onGround;
+		//if (!canSmash)
 	}
 
 
@@ -89,8 +139,7 @@ public class PlayerAttack : MonoBehaviour
 			collider.enabled = false;
 			collider.enabled = true;
 		}
-
-
+			
 		float time = 0f;
 		Time.timeScale = 1;
 
@@ -118,7 +167,6 @@ public class PlayerAttack : MonoBehaviour
 		float time = 0f;
 		Time.timeScale = 1;
 		canUpswing = false;
-
 		bool facingRightUpswing = GetComponent<Player_Controller> ().facingRight;
 			
 		while (attackDuration > time)
@@ -136,11 +184,39 @@ public class PlayerAttack : MonoBehaviour
 			yield return 0; // go to next frame
 		}
 		GetComponent<Player_Controller> ().rigidBody.velocity = new Vector2 (0, 8);
-		attackTriggerUpswing.enabled = false; // turn off hitbox
 		anim.SetInteger ("AttackState", 0); // back to idle
 
-		Time.timeScale = 1;
 		yield return new WaitForSeconds (upswingCD); //Cooldown time for being able to attack again
 		canUpswing = true; //set back to true so that we can boost again.
+	}
+
+	IEnumerator AttackMovementB (float attackDuration)
+	{
+		float time = 0f;
+		Time.timeScale = 1;
+		//canSmash = false;  Unnecessary since usses player.OnGround check
+		bool facingRightSmash = GetComponent<Player_Controller> ().facingRight;
+
+		//Windup
+		GetComponent<Player_Controller> ().rigidBody.velocity = new Vector2 (0, 8);
+		yield return new WaitForSeconds (smashWindup);
+		anim.SetInteger ("AttackState", 5); // back to idle
+
+		// Smash
+		while (attackDuration > time)
+		{
+			time += Time.deltaTime;
+			if (facingRightSmash)
+			{
+				GetComponent<Player_Controller> ().rigidBody.velocity = attackSmashDistanceRIGHT;
+			}
+			else
+			if (!facingRightSmash)
+			{ 
+				GetComponent<Player_Controller> ().rigidBody.velocity = attackSmashDistanceLEFT;
+			}
+			//GetComponent<Player_Controller> ().rigidBody.velocity = new Vector2 (0, 8);
+		}
+		yield return new WaitForSeconds (smashCD);
 	}
 }

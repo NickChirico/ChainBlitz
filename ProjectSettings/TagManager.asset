@@ -11,6 +11,8 @@ TagManager:
   - cameraEdge
   - Edge
   - ChargerEnemy
+  - Projectile
+  - FlyingEnemy
   layers:
   - Default
   - TransparentFX
@@ -24,8 +26,8 @@ TagManager:
   - Enemy
   - Player
   - HitBox
-  - 
-  - 
+  - FlyingEnemy
+  - Projectile
   - 
   - 
   - 

@@ -14,11 +14,11 @@ public class CameraScript : MonoBehaviour
 	public float smoothTimeX;
 	public float smoothTimeY;
 
-	public GameObject player;
+	public Player_Controller player;
 
 	void Start ()
 	{
-		//player = GameObject.FindGameObjectWithTag ("Player");
+		player = FindObjectOfType<Player_Controller> ();
 	}
 
 	void Update ()
