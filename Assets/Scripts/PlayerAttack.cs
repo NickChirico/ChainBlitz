@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class PlayerAttack : MonoBehaviour
 {
+	Player_Controller player;
 	private bool attacking = false;
 
 	private int attackCounter = 0;
@@ -44,6 +45,7 @@ public class PlayerAttack : MonoBehaviour
 
 	void Start ()
 	{		
+		player = FindObjectOfType<Player_Controller> ();
 		anim = gameObject.GetComponent<Animator> ();
 		attackTrigger1.enabled = false;
 		attackTrigger2.enabled = false;
@@ -72,6 +74,7 @@ public class PlayerAttack : MonoBehaviour
 
 			anim.SetInteger ("AttackState", attackCounter);
 			//attackTrigger1.enabled = true;
+
 		}
 
 		if (attackCounter > 0)
@@ -183,7 +186,7 @@ public class PlayerAttack : MonoBehaviour
 			}
 			yield return 0; // go to next frame
 		}
-		GetComponent<Player_Controller> ().rigidBody.velocity = new Vector2 (0, 8);
+		GetComponent<Player_Controller> ().rigidBody.velocity = new Vector2 (0, 12);
 		anim.SetInteger ("AttackState", 0); // back to idle
 
 		yield return new WaitForSeconds (upswingCD); //Cooldown time for being able to attack again
@@ -218,5 +221,6 @@ public class PlayerAttack : MonoBehaviour
 			//GetComponent<Player_Controller> ().rigidBody.velocity = new Vector2 (0, 8);
 		}
 		yield return new WaitForSeconds (smashCD);
+		player.currentCombo = 0;
 	}
 }

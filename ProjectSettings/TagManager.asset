@@ -13,6 +13,7 @@ TagManager:
   - ChargerEnemy
   - Projectile
   - FlyingEnemy
+  - Spawner
   layers:
   - Default
   - TransparentFX

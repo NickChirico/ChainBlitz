@@ -11,6 +11,7 @@ public class Player_Controller : MonoBehaviour
 
 	[HideInInspector]
 	public Collider2D[] colls;
+	public PhysicsMaterial2D highFriction;
 
 	// Movement variables
 	public float speedX = 5f;
@@ -33,9 +34,12 @@ public class Player_Controller : MonoBehaviour
 	public float dashLength = 1f;
 
 
+
 	// Combat Variables
 	private bool isAlive = true;
 	public int health = 100;
+	[HideInInspector]
+	public int currentCombo = 0;
 	public float invincibilityDuration = 2;
 
 	public Vector2 flinchKnockbackRight = new Vector2 (-5, 3);
@@ -60,40 +64,45 @@ public class Player_Controller : MonoBehaviour
 
 	void Update ()
 	{
+		// REMOVE THIS WHEN YOU UPDATE HEALTH STUFF
+		if (health > 5)
+			health = 5;
 
 		// Movement with Xbox controller
 		// Left Stick is movement
-
-		moveVelocity = speedX * Input.GetAxisRaw ("Horizontal");
-
-		// Flip the sprite to where he's facing accordingly.
-		if (moveVelocity > 0)
+		if (isAlive)
 		{
-			transform.localScale = new Vector3 (3, 2.05f, 3);
-			facingRight = true;
-		}
-		else
-		if (moveVelocity < 0)
-		{
-			transform.localScale = new Vector3 (-3, 2.05f, 3);
-			facingRight = false;
-		}
+			moveVelocity = speedX * Input.GetAxisRaw ("Horizontal");
 
-		rigidBody.velocity = new Vector2 (moveVelocity, rigidBody.velocity.y);
+			// Flip the sprite to where he's facing accordingly.
+			if (moveVelocity > 0)
+			{
+				transform.localScale = new Vector3 (3, 2.05f, 3);
+				facingRight = true;
+			}
+			else
+			if (moveVelocity < 0)
+			{
+				transform.localScale = new Vector3 (-3, 2.05f, 3);
+				facingRight = false;
+			}
+
+			rigidBody.velocity = new Vector2 (moveVelocity, rigidBody.velocity.y);
 
 
-		// BASIC JUMP (extensive jump details in PlayerJump.cs)
-		if (jumps > 0 && Input.GetKeyDown (KeyCode.JoystickButton0))
-		{
-			rigidBody.velocity = Vector2.up * jumpVelocity;
-			jumps--;
-		}
+			// BASIC JUMP (extensive jump details in PlayerJump.cs)
+			if (jumps > 0 && Input.GetKeyDown (KeyCode.JoystickButton0))
+			{
+				rigidBody.velocity = Vector2.up * jumpVelocity;
+				jumps--;
+			}
 			
-		// DASH (Left Shift)
-		if ((Input.GetKeyDown (KeyCode.JoystickButton4) || Input.GetKeyDown (KeyCode.JoystickButton5)) && canDash)
-		{
-			StartCoroutine (Dash (dashLength)); // Call coroutine to dash with dash duration parameter
+			// DASH (Left Shift)
+			if ((Input.GetKeyDown (KeyCode.JoystickButton4) || Input.GetKeyDown (KeyCode.JoystickButton5)) && canDash)
+			{
+				StartCoroutine (Dash (dashLength)); // Call coroutine to dash with dash duration parameter
 
+			}
 		}
 	}
 
@@ -187,13 +196,21 @@ public class Player_Controller : MonoBehaviour
 		if (health <= 0)
 		{
 			isAlive = false;
-			//DIE DEATH DEAD function
+			Die ();
+			anim.SetInteger ("AnimState", -1);
 			spriteRenderer.color = Color.red;
 		}
 		else
 		{
 			StartCoroutine (DamageBlink (flinchLength));
 		}
+		currentCombo = 0;
+
+	}
+
+	void Die()
+	{
+		rigidBody.sharedMaterial = highFriction;
 	}
 
 	void OnCollisionEnter2D (Collision2D collisionInfo)
@@ -203,6 +220,7 @@ public class Player_Controller : MonoBehaviour
 		if (collisionInfo.gameObject.tag == "Ground")
 		{
 			jumps = numJumps;
+			currentCombo = 0;
 			onGround = true;
 			if (anim.GetInteger ("AttackState") == 5)
 				anim.SetInteger ("AttackState", 0);
@@ -216,12 +234,14 @@ public class Player_Controller : MonoBehaviour
 
 		if (collisionInfo.gameObject.tag == "ChargerEnemy")
 		{
-			TakeDamage (15);
+			//TakeDamage (15);
+			TakeDamage(1);
 		}
 
 		if (collisionInfo.gameObject.tag == "Projectile")
 		{
-			TakeDamage (6);
+			//TakeDamage (6);
+			TakeDamage(1);
 		}
 
 	}

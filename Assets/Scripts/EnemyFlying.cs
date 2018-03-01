@@ -9,7 +9,6 @@ using UnityEngine;
 public class EnemyFlying: MonoBehaviour
 {
 
-	public GameObject DesignatedArea;
 	public Vector3 target;
 	public Player_Controller player;
 	public float updateRate = 2f;
@@ -17,13 +16,17 @@ public class EnemyFlying: MonoBehaviour
 	private Seeker seeker;
 	private Rigidbody2D rb;
 
-	//public bool isSeeking = false;
+	public bool inRange = false;
+	public float range;
+	public GameObject DesignatedArea;
+
 
 	//store the calculated path
 	public Path path;
 
 	// AI speed per second
 	public float speed = 300f;
+	private float startingSpeed;
 	public ForceMode2D fMode;
 
 	[HideInInspector]
@@ -40,6 +43,7 @@ public class EnemyFlying: MonoBehaviour
 
 	void Start ()
 	{
+		startingSpeed = speed;
 		seeker = GetComponent<Seeker> ();
 		rb = GetComponent<Rigidbody2D> ();
 		player = FindObjectOfType<Player_Controller> ();
@@ -58,6 +62,16 @@ public class EnemyFlying: MonoBehaviour
 
 	void Update()
 	{
+		if (Vector3.Distance (transform.position, player.transform.position) <= range)
+		{
+			inRange = true;
+		}
+		else
+			inRange = false;
+
+
+
+
 		if (health <= 0)
 		{
 			Destroy (this.gameObject);
@@ -73,14 +87,14 @@ public class EnemyFlying: MonoBehaviour
 
 	IEnumerator UpdatePath ()
 	{
-		target = new Vector3(player.transform.position.x, player.transform.position.y+5, player.transform.position.z);
-
-
+		//if(inRange)
+		{
+		target = new Vector3(player.transform.position.x, player.transform.position.y+3.5f, player.transform.position.z);
 		seeker.StartPath (transform.position, target, OnPathComplete);	
 
 		yield return new WaitForSeconds (1f / updateRate);
 		StartCoroutine (UpdatePath ()); // call itself again every 'x' seconds
-
+		}
 	}
 
 	public void OnPathComplete (Path p)
@@ -124,6 +138,12 @@ public class EnemyFlying: MonoBehaviour
 
 		//Direction to the next waypoint
 		Vector3 dir = (path.vectorPath [currentWaypoint] - transform.position).normalized; //return normalized direction vector
+
+		if (inRange)
+			speed = startingSpeed;
+		else
+			speed = 0f;
+
 		dir *= speed * Time.fixedDeltaTime;
 
 		//Now we have direction, so we actually move the Ai in the direction;
@@ -140,6 +160,12 @@ public class EnemyFlying: MonoBehaviour
 
 	}
 
+	void OnDrawGizmos()
+	{
+		Gizmos.color = Color.blue;
+		Gizmos.DrawLine (new Vector3 (transform.position.x - range, transform.position.y, transform.position.z), new Vector3 (transform.position.x + range, transform.position.y, transform.position.z));
+		Gizmos.DrawLine (new Vector3 (transform.position.x, transform.position.y - range, transform.position.z), new Vector3 (transform.position.x, transform.position.y + range, transform.position.z));
 
+	}
 
 }
