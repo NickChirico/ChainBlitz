@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class Player_Controller : MonoBehaviour
 {
+	public GameObject results;
+
 	public static Player_Controller instance;
 	SpriteRenderer spriteRenderer;
 	public Rigidbody2D rigidBody;
@@ -211,6 +213,13 @@ public class Player_Controller : MonoBehaviour
 	void Die()
 	{
 		rigidBody.sharedMaterial = highFriction;
+		StartCoroutine (showResults ());
+	}
+
+	IEnumerator showResults()
+	{
+		yield return new WaitForSeconds (1);
+		results.SetActive (true);
 	}
 
 	void OnCollisionEnter2D (Collision2D collisionInfo)
