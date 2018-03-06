@@ -15,6 +15,7 @@ public class EnemyFlying: MonoBehaviour
 	//updates x times per second.
 	private Seeker seeker;
 	private Rigidbody2D rb;
+	private SpriteRenderer spriteRenderer;
 
 	public bool inRange = false;
 	public float range;
@@ -39,6 +40,7 @@ public class EnemyFlying: MonoBehaviour
 
 
 	public int health = 40;
+	public float deathTimer;
 
 
 	void Start ()
@@ -46,6 +48,7 @@ public class EnemyFlying: MonoBehaviour
 		startingSpeed = speed;
 		seeker = GetComponent<Seeker> ();
 		rb = GetComponent<Rigidbody2D> ();
+		spriteRenderer = GetComponent<SpriteRenderer> ();
 		player = FindObjectOfType<Player_Controller> ();
 
 		if (target == null)
@@ -74,7 +77,7 @@ public class EnemyFlying: MonoBehaviour
 
 		if (health <= 0)
 		{
-			Destroy (this.gameObject);
+			StartCoroutine(die());
 		}
 	}
 
@@ -84,6 +87,13 @@ public class EnemyFlying: MonoBehaviour
 		//StartCoroutine (Flinch (flinchLength));
 	}
 
+	IEnumerator die()
+	{
+		Physics2D.IgnoreCollision (this.GetComponent<Collider2D>(), player.GetComponent<Collider2D>(), true);
+		spriteRenderer.color = Color.black;
+		yield return new WaitForSeconds (deathTimer);
+		Destroy (this.gameObject);
+	}
 
 	IEnumerator UpdatePath ()
 	{

@@ -24,6 +24,6 @@ public class ComboTextUI : MonoBehaviour
 			comboText.text = "";
 		}
 		else if(player.currentCombo > 0 && !player.onGround)
-			comboText.text = "Air Combo: " + player.currentCombo + "\n" + "Smash Damage: " + (30+(player.currentCombo*10));
+			comboText.text = "Air Combo: " + player.currentCombo + "\n" + "Smash Damage: " + (20+(player.currentCombo*10));
 	}
 }

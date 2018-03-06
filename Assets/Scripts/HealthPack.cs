@@ -4,24 +4,51 @@ using UnityEngine;
 
 public class HealthPack : MonoBehaviour {
 
-	public int healthAmount;
+	public int healAmount;
+	public float respawnTime;
 	public Player_Controller player;
+	SpriteRenderer spriteRenderer;	
+	Rigidbody2D rb;
+	Collider2D coll;
+	//public RoundManager roundManager;
 
 	void Start () {
+		spriteRenderer = GetComponent<SpriteRenderer> ();
+		rb = GetComponent<Rigidbody2D> ();
+		coll = GetComponent<Collider2D> ();
 		player = FindObjectOfType<Player_Controller> ();
 	}
 	
-	void Update () {
-		
+	void Update () 
+	{
+		// If the health kit is disabled when you beat a round, they all respawn
+		/*if (roundManager.canIncrementRound)
+			this.enabled = true;*/
 	}
 
-	void OnTriggerEnter2D(Collider2D coll)
+	void OnCollisionEnter2D(Collision2D coll)
 	{
 		// You need to hit the health packs
-		if (coll.isTrigger && coll.CompareTag ("Player"))
+		if (coll.gameObject.tag == "Player")
 		{
-			player.health += healthAmount;
-			Destroy (this.gameObject);
+			player.health.CurrentValue += healAmount;
+
+			// Go on cooldown, Respawn after cooldown or at the start of a new round
+			//StartCoroutine(cooldown(respawnTime));
+			isUsable(false);
 		}
+	}
+
+	public void isUsable(bool boolean)
+	{
+		this.spriteRenderer.enabled = boolean;
+		Physics2D.IgnoreCollision(this.coll, player.GetComponent<Collider2D>(), !boolean);
+	}
+
+	IEnumerator cooldown(float cd)
+	{
+		isUsable (false);
+		yield return new WaitForSeconds (cd);
+		isUsable (true);
 	}
 }

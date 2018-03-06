@@ -5,6 +5,7 @@ using UnityEngine;
 public class EnemyPatrol : MonoBehaviour
 {
 	public SpriteRenderer ChargeIndicator;
+	Player_Controller player;
 	SpriteRenderer spriteRenderer;
 	Rigidbody2D rb;
 
@@ -26,6 +27,7 @@ public class EnemyPatrol : MonoBehaviour
 
 	// Other Combat Variables
 	public int health = 20;
+	public float deathTimer;
 	public float flinchLength = 0.5f;
 	public Vector2 flinchKnockbackRight = new Vector2 (-2, 0);
 	public Vector2 flinchKnockbackLeft = new Vector2 (2, 0);
@@ -34,6 +36,7 @@ public class EnemyPatrol : MonoBehaviour
 	// Use this for initialization
 	void Start ()
 	{
+		player = FindObjectOfType<Player_Controller> ();
 		float tempSpeed = speed;
 		spriteRenderer = GetComponent<SpriteRenderer> ();
 		rb = GetComponent<Rigidbody2D> ();
@@ -49,7 +52,8 @@ public class EnemyPatrol : MonoBehaviour
 	{
 		if (health <= 0)
 		{
-			Destroy (this.gameObject);
+			//Destroy (this.gameObject);
+			StartCoroutine(die());
 		}
 
 
@@ -163,6 +167,14 @@ public class EnemyPatrol : MonoBehaviour
 		patrolling = true;
 		//anim.SetInteger ("AnimState", 0); NEXT ENEMY ANIMATION
 		StartCoroutine (Patrol ());
+	}
+
+	IEnumerator die()
+	{
+		Physics2D.IgnoreCollision (this.GetComponent<Collider2D>(), player.GetComponent<Collider2D>(), true);
+		spriteRenderer.color = Color.black;
+		yield return new WaitForSeconds (deathTimer);
+		Destroy (this.gameObject);
 	}
 
 	void OnDrawGizmos ()

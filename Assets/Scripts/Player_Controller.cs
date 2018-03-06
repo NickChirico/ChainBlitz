@@ -20,7 +20,8 @@ public class Player_Controller : MonoBehaviour
 	public float moveVelocity;
 	public float jumpVelocity = 8f;
 	public int numJumps = 2;
-	private int jumps;
+	[HideInInspector]
+	public int jumps;
 	// Value for double jumping
 	public bool facingRight = true;
 	[HideInInspector]
@@ -38,8 +39,15 @@ public class Player_Controller : MonoBehaviour
 
 
 	// Combat Variables
-	private bool isAlive = true;
-	public int health = 100;
+	[HideInInspector]
+	public bool isAlive = true;
+
+	[SerializeField]
+	public Stat health;
+	//public int health = 100;
+	//public int maxHealth = 100;
+	[HideInInspector]
+	public int lives;
 	[HideInInspector]
 	public int currentCombo = 0;
 	public float invincibilityDuration = 2;
@@ -50,8 +58,20 @@ public class Player_Controller : MonoBehaviour
 	public float flinchLength = 1f;
 
 
+	// Buff Variables for HUD
+	[HideInInspector]
+	public bool isInvincible = false;
+	[HideInInspector]
+	public bool isInvincibleBuff = false;
+	[HideInInspector]
+	public bool isSpedUpBuff = false;
 
 
+
+	private void Awake ()
+	{
+		health.Initialize ();
+	}
 
 	void Start ()
 	{
@@ -61,14 +81,15 @@ public class Player_Controller : MonoBehaviour
 		anim = gameObject.GetComponent<Animator> ();
 		colls = this.GetComponents<Collider2D> ();
 
+		health.CurrentValue = health.MaxValue;
+
+		this.transform.position = new Vector3 (0, -2, 0);
+		lives = 1;
 		jumps = numJumps;
 	}
 
 	void Update ()
 	{
-		// REMOVE THIS WHEN YOU UPDATE HEALTH STUFF
-		if (health > 5)
-			health = 5;
 
 		// Movement with Xbox controller
 		// Left Stick is movement
@@ -105,6 +126,24 @@ public class Player_Controller : MonoBehaviour
 				StartCoroutine (Dash (dashLength)); // Call coroutine to dash with dash duration parameter
 
 			}
+		}
+
+		if (isInvincible)
+		{
+			int enemyLayer = LayerMask.NameToLayer ("Enemy");
+			int bulletLayer = LayerMask.NameToLayer ("Projectile");
+			int playerLayer = LayerMask.NameToLayer ("Player");
+			Physics2D.IgnoreLayerCollision (enemyLayer, playerLayer, true);
+			Physics2D.IgnoreLayerCollision (bulletLayer, playerLayer, true);
+		}
+		else
+		if (!isInvincible)
+		{
+			int enemyLayer = LayerMask.NameToLayer ("Enemy");
+			int bulletLayer = LayerMask.NameToLayer ("Projectile");
+			int playerLayer = LayerMask.NameToLayer ("Player");
+			Physics2D.IgnoreLayerCollision (enemyLayer, playerLayer, false);
+			Physics2D.IgnoreLayerCollision (bulletLayer, playerLayer, false);
 		}
 	}
 
@@ -149,12 +188,7 @@ public class Player_Controller : MonoBehaviour
 	{
 		//temporarily ignore collision with enemies
 		int enemyLayer = LayerMask.NameToLayer ("Enemy");
-		int flyingEnemyLayer = LayerMask.NameToLayer ("FlyingEnemy");
-		int projectileLayer = LayerMask.NameToLayer ("Projectile");
-		int playerLayer = LayerMask.NameToLayer ("Player");
-		Physics2D.IgnoreLayerCollision (enemyLayer, playerLayer, true);
-		Physics2D.IgnoreLayerCollision (flyingEnemyLayer, playerLayer, true);
-		Physics2D.IgnoreLayerCollision (projectileLayer, playerLayer, true);
+		isInvincible = true;
 		foreach (Collider2D collider in colls)
 		{
 			collider.enabled = false;
@@ -174,7 +208,8 @@ public class Player_Controller : MonoBehaviour
 			time += Time.deltaTime;
 			if (facingRightFlinch)
 				rigidBody.velocity = flinchKnockbackRight;
-			else if(!facingRightFlinch)
+			else
+			if (!facingRightFlinch)
 				rigidBody.velocity = flinchKnockbackLeft;
 
 			yield return 0;			
@@ -185,19 +220,16 @@ public class Player_Controller : MonoBehaviour
 		yield return new WaitForSeconds (invincibilityDuration);
 
 		//stop blinking animation and resume enemy collisions
-		Physics2D.IgnoreLayerCollision (enemyLayer, playerLayer, false);
-		Physics2D.IgnoreLayerCollision (flyingEnemyLayer, playerLayer, false);
-		Physics2D.IgnoreLayerCollision (projectileLayer, playerLayer, false);
+		isInvincible = false;
 		anim.SetLayerWeight (1, 0);
 
 	}
 
-	void TakeDamage (int damage)
+	public void TakeDamage (int damage)
 	{
-		health -= damage;
-		if (health <= 0)
+		health.CurrentValue -= damage;
+		if (health.CurrentValue <= 0)
 		{
-			isAlive = false;
 			Die ();
 			anim.SetInteger ("AnimState", -1);
 			spriteRenderer.color = Color.red;
@@ -210,13 +242,14 @@ public class Player_Controller : MonoBehaviour
 
 	}
 
-	void Die()
+	void Die ()
 	{
+		isAlive = false;
 		rigidBody.sharedMaterial = highFriction;
 		StartCoroutine (showResults ());
 	}
 
-	IEnumerator showResults()
+	IEnumerator showResults ()
 	{
 		yield return new WaitForSeconds (1);
 		results.SetActive (true);
@@ -234,25 +267,6 @@ public class Player_Controller : MonoBehaviour
 			if (anim.GetInteger ("AttackState") == 5)
 				anim.SetInteger ("AttackState", 0);
 		}
-
-		if (collisionInfo.gameObject.tag == "FlyingEnemy")
-		{
-			//TakeDamage (15); Dont take damage. Instead, refresh double jump. Lets try it.
-			jumps = numJumps;
-		}
-
-		if (collisionInfo.gameObject.tag == "ChargerEnemy")
-		{
-			//TakeDamage (15);
-			TakeDamage(1);
-		}
-
-		if (collisionInfo.gameObject.tag == "Projectile")
-		{
-			//TakeDamage (6);
-			TakeDamage(1);
-		}
-
 	}
 
 	void OnCollisionExit2D (Collision2D collisionInfo)
@@ -261,5 +275,35 @@ public class Player_Controller : MonoBehaviour
 		{
 			onGround = false;
 		}
+	}
+
+	// ITEMS BUFFS EFFECTS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+	public IEnumerator invincibility (float duration)
+	{
+		isInvincible = true;
+		isInvincibleBuff = true;
+		spriteRenderer.color = Color.yellow;
+		anim.SetLayerWeight (1, 1);
+
+
+		yield return new WaitForSeconds (duration);
+
+		spriteRenderer.color = Color.white;
+
+		anim.SetLayerWeight (1, 0);
+		isInvincible = false;
+		isInvincibleBuff = false;
+	}
+
+	public IEnumerator speedUp(float duration, float amount)
+	{
+		isSpedUpBuff = true;
+		speedX *= amount;
+
+		yield return new WaitForSeconds (duration);
+
+		speedX /= amount;
+		isSpedUpBuff = false;
 	}
 }

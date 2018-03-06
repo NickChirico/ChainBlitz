@@ -5,6 +5,9 @@ using UnityEngine;
 public class PlayerAttack : MonoBehaviour
 {
 	Player_Controller player;
+
+	public float baseDamage;
+
 	private bool attacking = false;
 
 	private int attackCounter = 0;
@@ -40,7 +43,9 @@ public class PlayerAttack : MonoBehaviour
 	public Vector2 attackSmashDistanceRIGHT = new Vector2 (4, -10);
 	public Vector2 attackSmashDistanceLEFT = new Vector2 (-4, -10);
 
-
+	//Variables for buffs that need it
+	[HideInInspector]
+	public bool damageIsBuffed;
 
 
 	void Start ()
@@ -60,7 +65,7 @@ public class PlayerAttack : MonoBehaviour
 		CheckHitboxes ();
 
 		// First attack - X button 1st time pressed
-		if (Input.GetKeyDown (KeyCode.JoystickButton2) && attackCounter < 3) //&& !attacking)
+		if (Input.GetKeyDown (KeyCode.JoystickButton2) && attackCounter < 3 && player.isAlive) //&& !attacking)
 		{
 			StartCoroutine (AttackMovementX (attackMovementDistance));
 
@@ -89,13 +94,13 @@ public class PlayerAttack : MonoBehaviour
 
 		// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-		if (Input.GetKeyDown (KeyCode.JoystickButton3) && canUpswing)
+		if (Input.GetKeyDown (KeyCode.JoystickButton3) && canUpswing && player.isAlive)
 		{
 			anim.SetInteger ("AttackState", 4); // set animation to upswing
 			StartCoroutine (AttackMovementY (attackDurationUpswing));
 		}
 
-		if (Input.GetKeyDown (KeyCode.JoystickButton1) && canSmash)
+		if (Input.GetKeyDown (KeyCode.JoystickButton1) && canSmash && player.isAlive)
 		{
 			anim.SetInteger ("AttackState", 6); // set animation to Smash WINDUP
 			StartCoroutine (AttackMovementB (attackDurationSmash));
@@ -222,5 +227,17 @@ public class PlayerAttack : MonoBehaviour
 		}
 		yield return new WaitForSeconds (smashCD);
 		player.currentCombo = 0;
+	}
+
+
+	public IEnumerator damageUp (float duration, float amount)
+	{
+		damageIsBuffed = true;
+		baseDamage = baseDamage * amount;
+
+		yield return new WaitForSeconds (duration);
+
+		baseDamage = baseDamage / amount;
+		damageIsBuffed = false;
 	}
 }

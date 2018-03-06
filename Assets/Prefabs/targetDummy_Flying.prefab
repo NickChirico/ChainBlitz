@@ -24,8 +24,11 @@ GameObject:
   - component: {fileID: 50217049070036930}
   - component: {fileID: 114071021301158056}
   - component: {fileID: 114029838789086350}
+  - component: {fileID: 114559556502820986}
+  - component: {fileID: 114923068210763270}
   - component: {fileID: 61386871385191410}
   - component: {fileID: 70782819142442104}
+  - component: {fileID: 114122016080936142}
   m_Layer: 12
   m_Name: targetDummy_Flying
   m_TagString: FlyingEnemy
@@ -68,7 +71,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1275114494051038}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -2.5052414, y: 11.652107, z: -2.18}
+  m_LocalPosition: {x: -2.5052414, y: 11.652107, z: -1}
   m_LocalScale: {x: 1.5, y: 1.5, z: 0}
   m_Children:
   - {fileID: 4284993470627730}
@@ -175,6 +178,87 @@ MonoBehaviour:
   pathIsEnded: 0
   nextWaypointDistance: 3
   health: 80
+  deathTimer: 0.25
+--- !u!114 &114122016080936142
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1275114494051038}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 963610ed5045394458ccd52595779ebe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  icon: {fileID: 2800000, guid: 5246bf8e4033d4a4aad816901a7ba38e, type: 3}
+  iconSize: 10
+  gooey:
+    m_Name: 
+    m_Normal:
+      m_Background: {fileID: 0}
+      m_ScaledBackgrounds: []
+      m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+    m_Hover:
+      m_Background: {fileID: 0}
+      m_ScaledBackgrounds: []
+      m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+    m_Active:
+      m_Background: {fileID: 0}
+      m_ScaledBackgrounds: []
+      m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+    m_Focused:
+      m_Background: {fileID: 0}
+      m_ScaledBackgrounds: []
+      m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+    m_OnNormal:
+      m_Background: {fileID: 0}
+      m_ScaledBackgrounds: []
+      m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+    m_OnHover:
+      m_Background: {fileID: 0}
+      m_ScaledBackgrounds: []
+      m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+    m_OnActive:
+      m_Background: {fileID: 0}
+      m_ScaledBackgrounds: []
+      m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+    m_OnFocused:
+      m_Background: {fileID: 0}
+      m_ScaledBackgrounds: []
+      m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+    m_Border:
+      m_Left: 0
+      m_Right: 0
+      m_Top: 0
+      m_Bottom: 0
+    m_Margin:
+      m_Left: 0
+      m_Right: 0
+      m_Top: 0
+      m_Bottom: 0
+    m_Padding:
+      m_Left: 0
+      m_Right: 0
+      m_Top: 0
+      m_Bottom: 0
+    m_Overflow:
+      m_Left: 0
+      m_Right: 0
+      m_Top: 0
+      m_Bottom: 0
+    m_Font: {fileID: 0}
+    m_FontSize: 0
+    m_FontStyle: 0
+    m_Alignment: 0
+    m_WordWrap: 0
+    m_RichText: 1
+    m_TextClipping: 0
+    m_ImagePosition: 0
+    m_ContentOffset: {x: 0, y: 0}
+    m_FixedWidth: 0
+    m_FixedHeight: 0
+    m_StretchWidth: 1
+    m_StretchHeight: 0
 --- !u!114 &114481081776351694
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -200,6 +284,39 @@ MonoBehaviour:
     useGraphRaycasting: 0
   traversableTags: -1
   tagPenalties: 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+--- !u!114 &114559556502820986
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1275114494051038}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 780c229d3304d064caea3759beb83692, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  drops:
+  - {fileID: 1568805126964384, guid: c9c5b7d4ee1f47c48b69716bc6ba66c1, type: 2}
+  - {fileID: 1975344590171734, guid: 7f878059d3c64db4f8bbc263dbc61057, type: 2}
+  canDropItem: 1
+  chanceToDrop: 1
+--- !u!114 &114923068210763270
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1275114494051038}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b63d94cd28ef0e4eb11cbc67f96c543, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  drops:
+  - {fileID: 1568805126964384, guid: c9c5b7d4ee1f47c48b69716bc6ba66c1, type: 2}
+  - {fileID: 1975344590171734, guid: 7f878059d3c64db4f8bbc263dbc61057, type: 2}
+  - {fileID: 1505938357053162, guid: 668567834c453274295f61f4534cac97, type: 2}
+  - {fileID: 1903486059456898, guid: 0916c378a7e44f840809105e47812ea5, type: 2}
+  chanceToDrop: 0.25
 --- !u!212 &212563785431359616
 SpriteRenderer:
   m_ObjectHideFlags: 1

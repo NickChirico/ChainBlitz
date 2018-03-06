@@ -4,21 +4,33 @@ using UnityEngine;
 
 public class AttackTrigger : MonoBehaviour {
 
-	public Player_Controller player;
-	public int damage = 20;
+	Player_Controller player;
+
+	PlayerAttack attacker;
+
+	public float additionalDamage = 20;
+	private float baseDamage;
+	private float damage;
+
 	public bool countsForCombo = true;
 
 	void Start()
 	{
 		player = FindObjectOfType<Player_Controller> ();	
+		attacker = FindObjectOfType<PlayerAttack> ();
+
 	}
 
 	void Update()
 	{
+		baseDamage = attacker.baseDamage;
+		damage = baseDamage + additionalDamage;
+
 		if (!countsForCombo)
 		{
 			// If it's the smash attack,
-			damage = 30 + (player.currentCombo * 10);
+			damage = attacker.baseDamage*2 + (player.currentCombo * 10);
+			// 20 + (combo * 10)
 
 		}
 	}
